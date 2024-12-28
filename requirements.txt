@@ -1,0 +1,4 @@
+CTkMessagebox==2.7
+customtkinter==5.2.2
+Pillow==11.0.0
+yt_dlp==2024.12.23
