@@ -58,6 +58,9 @@ auto-py-to-exe
 
 3. At the end of the page you can import the `exe.json` file. You need to import and change the static files path to the correct path. Then click on the "Convert .py to .exe" button.
 
+> [!IMPORTANT]  
+> The folder with images and the ffmpeg executable must be in the same folder as the executable.
+
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
