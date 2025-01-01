@@ -1,4 +1,3 @@
-from download import download_youtube_audio as dya
 from lockf import LockFolder
 import functions as f
 from PIL import Image
@@ -8,6 +7,7 @@ import os
 import signal
 import threading
 import webbrowser
+import yt_dlp
 
 baseColor = ("#ebebeb", "#242424")
 cardContent = ("#dbdbdb", "#2b2b2b")
@@ -38,6 +38,49 @@ def destination_folder():
     folder.lock()
 
 
+def tqdm_hook(d):
+    if d['status'] == 'downloading':
+        downloaded = d['downloaded_bytes']
+        total = d['total_bytes']
+        progress = downloaded / total
+        progress_bar.set(progress)
+    elif d['status'] == 'finished':
+        progress_bar.set(1.0)
+        progress_bar.configure(mode="indeterminate")
+        progress_bar.start()
+
+
+def download_youtube_audio(url: str, output_path: str = "downloads") -> bool:
+    # Ensure the output path exists
+    os.makedirs(output_path, exist_ok=True)
+
+    # Define options for yt-dlp to download audio and select the output path
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '320',
+        }],
+        'outtmpl': os.path.join(output_path, '%(title)s.%(ext)s'),  # Specify output path
+        'progress_hooks': [tqdm_hook],
+    }
+
+    # Download the audio
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.extract_info(url, download=True)
+            return True
+    except Exception as e:
+        return False
+
+
+def get_yt_video_title(url: str) -> str:
+    with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+        info_dict = ydl.extract_info(url, download=False)
+        return info_dict.get('title', None)
+
+
 def open_repo(event):
     webbrowser.open_new("https://github.com/aSamu3l/yt-mp3-downloader")
 
@@ -48,13 +91,18 @@ def open_profile(event):
 
 def ldya(urll: str, dest: str = "downloads"):
     urlEntry.configure(state="readonly")
-    res = dya(urll, dest)
+
+    res = download_youtube_audio(urll, dest)
     if res:
         CTkM(title="Success", message="Download completed", icon="info")
     else:
         CTkM(title="Error", message="Download failed", icon="cancel")
+
     urlEntry.configure(state="normal")
     url.set("")
+    progress_bar.configure(mode="determinate")
+    progress_bar.set(0.0)
+    progress_bar.stop()
 
 
 def download():
@@ -101,17 +149,23 @@ destinationFolderPath.set("")
 destinationFolderEntry = CTk.CTkEntry(downloadFrame, textvariable=destinationFolderPath, bg_color=boxContent,
                                       fg_color=cardContent, width=760, height=30, font=("Arial", 15), state="readonly")
 destinationFolderEntry.pack()
-destinationFolderEntry.place(x=10, y=180)
+destinationFolderEntry.place(x=10, y=170)
 destinationFolderButton = CTk.CTkButton(downloadFrame, text="Select Folder", width=760, height=30, font=("Arial", 15),
                                         command=destination_folder)
 destinationFolderButton.pack()
-destinationFolderButton.place(x=10, y=220)
+destinationFolderButton.place(x=10, y=210)
+
+# Progress Bar
+progress_bar = CTk.CTkProgressBar(downloadFrame, width=760)
+progress_bar.pack()
+progress_bar.place(x=10, y=362)
+progress_bar.set(0)
 
 # URL Label
 urlLabel = CTk.CTkLabel(downloadFrame, text="⬇ YouTube URL ⬇", bg_color=baseColor, fg_color=cardContent, width=780, height=30,
                          font=("Arial", 20))
 urlLabel.pack()
-urlLabel.place(x=0, y=270)
+urlLabel.place(x=0, y=255)
 
 # URL
 url = CTk.StringVar()
@@ -119,7 +173,7 @@ url.set("")
 urlEntry = CTk.CTkEntry(downloadFrame, textvariable=url, bg_color=boxContent, fg_color=cardContent, width=760,
                         height=30, font=("Arial", 15))
 urlEntry.pack()
-urlEntry.place(x=10, y=300)
+urlEntry.place(x=10, y=285)
 
 # Download Button
 downloadButton = CTk.CTkButton(downloadFrame, text="Download", width=760, height=30, font=("Arial", 15),

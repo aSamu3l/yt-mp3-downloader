@@ -43,6 +43,21 @@ After starting the program, you will see a window like this:
 5. Enjoy your music!
 6. If you want to download another song, insert the new URL and click on the "Download" button again
 
+## Compiling EXE
+If you want to compile the program into an executable file, you can use the `auto-py-to-exe` package.
+
+1. Install the package
+```bash
+pip install auto-py-to-exe
+```
+
+2. Run the package
+```bash
+auto-py-to-exe
+```
+
+3. At the end of the page you can import the `exe.json` file. You need to import and change the static files path to the correct path. Then click on the "Convert .py to .exe" button.
+
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
