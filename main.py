@@ -118,7 +118,7 @@ def download():
 CTk.set_appearance_mode("dark")
 root = CTk.CTk()
 root.geometry("800x450")
-root.title("File Order")
+root.title("YT MP3 Downloader")
 if os.name == "nt":
     root.iconbitmap("./img/icon.ico")
 root.resizable(False, False)
@@ -179,7 +179,7 @@ urlEntry.place(x=10, y=285)
 downloadButton = CTk.CTkButton(downloadFrame, text="Download", width=760, height=30, font=("Arial", 15),
                                command=download)
 downloadButton.pack()
-downloadButton.place(x=10, y=340)
+downloadButton.place(x=10, y=325)
 
 # Credit Frame
 creditFrame = CTk.CTkFrame(root, fg_color=cardContent, width=780, height=40)
